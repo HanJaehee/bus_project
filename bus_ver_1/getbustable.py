@@ -1,12 +1,15 @@
 #-*- coding:utf-8 -*-
 """
+정류소 조회 서비스
+doc : GB203
 버스정류장테이블과 버스테이블 생성
 """
 import urllib.request
 import xml.etree.ElementTree as et
 import sqlite3
 
-def getStationId(serviceKey, station): #정류소 조회 서비스
+def getStationId(serviceKey, station):
+    #정류소 조회 서비스, 정류소 번호(08-171, '-'빼고)로 해당 정류소 StationId 가져옴
     url = 'http://openapi.gbis.go.kr/ws/rest/busstationservice?serviceKey=%s&keyword=%s'%(serviceKey, station)
     response = urllib.request.urlopen(url)
     data = response.read()
@@ -28,7 +31,7 @@ def getrouteId(serviceKey,stationId,station):
     response = urllib.request.urlopen(url)
     data = response.read()
     tree = et.fromstring(data)
-    conn = sqlite3.connect('Station.db')
+    conn = sqlite3.connect('station.db')
     curs = conn.cursor()
     routeId_list = []
 
@@ -46,6 +49,7 @@ def getrouteId(serviceKey,stationId,station):
     return routeId_list
 
 def createbustable(station):
+    #MariaDB로 바꺼야댐
     conn_bus = sqlite3.connect('bus.db')
     conn_stat = sqlite3.connect('station.db')
     curs_bus = conn_bus.cursor()
@@ -61,8 +65,13 @@ def createbustable(station):
 
 if __name__ == '__main__':
     serviceKey = 'CB%2Bo3%2FmVKJCSotkzZYDb7Ed%2BCi1ONj7Mmsmb5PqxzJ2A3OVmxuPDHzmxHPZOuw2IE%2B93CiUINtOioysJJdkBSQ%3D%3D'
-    station = '08171' #신동초등학교
-
-    stationId = getStationId(serviceKey, station)
-    routeId_list = getrouteId(serviceKey, stationId,station)
-    createbustable(station)
+    stationNum = '08171' #신동초등학교
+    """
+    정류소번호(=stationNum)로 getStationId함수로 stationId 얻은후,
+    해당 정류소를 지나가는 버스들의 routId를 getrouteId station.db에 저장
+    그리고 createbustable로 station.db내의 station_num테이블에서 routeName(버스번호)를 가져와
+    bus.db에 각 버스 번호 table 생성(여기에 시간, 잔여좌석, localtionNo저장)
+    """
+    stationId = getStationId(serviceKey, stationNum)
+    routeId_list = getrouteId(serviceKey, stationId,stationNum)
+    createbustable(stationNum)

@@ -1,3 +1,8 @@
+#-*- codig:utf-8 -*-
+"""
+버스도착정보조회서비스
+doc: GB208
+"""
 import urllib.request
 import xml.etree.ElementTree as et
 import sqlite3
@@ -5,6 +10,7 @@ import time, sys
 from datetime import datetime
 
 def getbusArrival(serviceKey, stationId):
+    #해당 정류소에서 조회시, 버스 두개가 조회되는데 일단은 한개 정보만 수집
     url = 'http://openapi.gbis.go.kr/ws/rest/busarrivalservice/station?serviceKey=%s&stationId=%s'%(serviceKey, stationId)
     response = urllib.request.urlopen(url)
     data = response.read()
@@ -27,6 +33,7 @@ def getbusArrival(serviceKey, stationId):
     conn.close()
 
 def getbusnum(serviceKey, routeId):
+    #임시로 API를 쓰긴했는데, 이제 db로 조회
     url = 'http://openapi.gbis.go.kr/ws/rest/busrouteservice/info?serviceKey=%s&routeId=%s'%(serviceKey, routeId)
 
     response = urllib.request.urlopen(url)

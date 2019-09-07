@@ -1,5 +1,6 @@
 """
 버스 도착 정보 조회 서비스
+doc : GB208
 stationId로 해당 노선내 버스들 전부 추출
 """
 #-*- encoding: utf-8 -*-
