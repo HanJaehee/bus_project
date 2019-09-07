@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<response>
+    <comMsgHeader>
+        <errMsg>NORMAL SERVICE.</errMsg>
+        <returnCode>00</returnCode>
+    </comMsgHeader>
+    <msgHeader>
+        <queryTime>2019-08-21 00:59:57.215</queryTime>
+        <resultCode>0</resultCode>
+        <resultMessage>정상적으로 처리되었습니다.</resultMessage>
+    </msgHeader>
+    <msgBody>
+        <busStationList>
+            <centerYn>N</centerYn>
+            <districtCd>1</districtCd>
+            <mobileNo> 08171</mobileNo>
+            <regionName>서울</regionName>
+            <stationId>107000081</stationId>
+            <stationName>미아초교</stationName>
+            <x>127.0220333</x>
+            <y>37.6115667</y>
+        </busStationList>
+        <busStationList>
+            <centerYn>N</centerYn>
+            <districtCd>2</districtCd>
+            <mobileNo> 08171</mobileNo>
+            <regionName>의정부</regionName>
+            <stationId>207000085</stationId>
+            <stationName>신동초.신동아파밀리에아파트앞</stationName>
+            <x>127.0568333</x>
+            <y>37.7400167</y>
+        </busStationList>
+    </msgBody>
+</response>
