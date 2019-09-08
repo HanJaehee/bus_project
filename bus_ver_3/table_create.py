@@ -7,6 +7,10 @@ class create_table:
     def __init__(self, stationNum):
         self.serviceKey = 'CB%2Bo3%2FmVKJCSotkzZYDb7Ed%2BCi1ONj7Mmsmb5PqxzJ2A3OVmxuPDHzmxHPZOuw2IE%2B93CiUINtOioysJJdkBSQ%3D%3D'
         self.stationNum = stationNum
+        #self.stationId = self.getstationId
+        #self.routeId_list = self.getrouteId
+        #self.createbusinfo
+        #self.createbusremain
 
     def getstationId(self):
         # 정류소 조회 서비스, 정류소 번호(08-171, '-'빼고)로 해당 정류소 StationId 가져옴
@@ -15,14 +19,12 @@ class create_table:
         response = urllib.request.urlopen(url)
         data = response.read()
         tree = et.fromstring(data)
-        stationId = ""
 
         for data in tree.iter('busStationList'):
-            region = data.findtext("reginName") #지역명은 일단은 의정부로 헀고, 추가시 지역명도 db에 포함
+            region = data.findtext("regionName") #지역명은 일단은 의정부로 헀고, 추가시 지역명도 db에 포함
             if region == "의정부":
                 stationId = data.findtext("stationId")
         print("[+] Success getstationId()")
-        print(stationId)
         return stationId
     
     def getrouteId(self):
@@ -53,9 +55,9 @@ class create_table:
     def createbusinfo(self):
         # routeId_list로 버스마다 경유하는 정류장들의 정보를 담은 테이블 생성
         # DB : bus_station_info // doc : GB202, No2.경유정류소목록조회
-        routeId_list = self.getrouteId()
         curs = dbcontrol('bus_station_info')
         curs2 = dbcontrol('station_info')
+        routeId_list = self.getrouteId()
         for routeId in routeId_list:
             url = "http://openapi.gbis.go.kr/ws/rest/busrouteservice/station?serviceKey=%s&routeId=%s"%(self.serviceKey, routeId)
             response = urllib.request.urlopen(url)
@@ -63,7 +65,8 @@ class create_table:
             tree = et.fromstring(data)
             curs2.execute('select routeName from station_%s where routeId=%s' %(self.stationNum, routeId))
             routeName = curs2.fetchall()
-            curs.execute('create table bus_%s(stationName varchar(30), routeId INT, stationId INT, x varchar(20), y varchar(20), stationSeq INT)'%(routeName))
+            #print(routeName)
+            curs.execute('create table bus_%s(stationName varchar(30), routeId INT, stationId INT, x varchar(20), y varchar(20), stationSeq INT)'%(routeName[0][0]))
 
             for data in tree.iter('busRouteStationList'):
                 stationId = data.findtext("stationId")
@@ -71,7 +74,7 @@ class create_table:
                 station_x = data.findtext("x")
                 station_y = data.findtext("y")
                 stationSeq = data.findtext("stationSeq")
-                curs.execute("insert into bus_%s(stationName, routeID, stationId, x, y, stationSeq) values ('%s', %s, %s, '%s', '%s', %s)"%(busnum, stationName, routeId, stationId, station_x, station_y, stationSeq))
+                curs.execute("insert into bus_%s(stationName, routeID, stationId, x, y, stationSeq) values ('%s', %s, %s, '%s', '%s', %s)"%(routeName[0][0], stationName, routeId, stationId, station_x, station_y, stationSeq))
         curs.commit()
         curs.close()
         print("[+] Success createbusinfo")
