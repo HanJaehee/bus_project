@@ -66,7 +66,7 @@ class create_table:
             curs2.execute('select routeName from station_%s where routeId=%s' %(self.stationNum, routeId))
             routeName = curs2.fetchall()
             #print(routeName)
-            curs.execute('create table bus_%s(stationName varchar(30), routeId INT, stationId INT, x varchar(20), y varchar(20), stationSeq INT)'%(routeName[0][0]))
+            curs.execute('create table bus_%s(stationName varchar(40), routeId INT, stationId INT, x varchar(20), y varchar(20), stationSeq INT)'%(routeName[0][0]))
 
             for data in tree.iter('busRouteStationList'):
                 stationId = data.findtext("stationId")
