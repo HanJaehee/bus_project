@@ -44,6 +44,3 @@ class getdata:
         result = curs.fetchall()
         routeName = result[0][0]
         return routeName
-
-    
-    

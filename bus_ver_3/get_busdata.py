@@ -11,4 +11,4 @@ try:
 except Exception as e:
     now = datetime.now()
     with open("log.txt", "wb") as f:
-        f.write("Error : ", e)
+        f.write(e)
