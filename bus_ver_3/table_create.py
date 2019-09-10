@@ -87,7 +87,7 @@ class create_table:
         curs.execute('select routeName from station_%s'%(self.stationNum))
         name_list = curs.fetchall()
         for name in name_list:
-            curs2.execute('create table bus_%s(date datetime, remainSeat INT, locationNo INT)' %(name[0]))
+            curs2.execute('create table bus_%s(date datetime, remainSeat INT, locationNo INT, stationSeq INT)' %(name[0]))
         curs.commit()
         curs2.commit()
         curs.close()

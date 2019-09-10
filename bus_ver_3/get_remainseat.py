@@ -27,11 +27,13 @@ class getdata:
             if remainSeat == '-1':
                 continue
             routeId = data.findtext('routeId')
+            staOrder = data.findtext('staOrder')
             routeName = self.getrouteName(routeId)
             locationNo = data.findtext('locationNo1')
+            stationSeq = int(staOrder) - int(locationNo)
             now = time.localtime()
             nowtime = "%04d-%02d-%02d %02d:%02d:%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec)
-            curs.execute("insert into bus_%s(date, remainSeat, locationNo) values ('%s', %s, %s)"%(routeName, nowtime,remainSeat, locationNo))
+            curs.execute("insert into bus_%s(date, remainSeat, locationNo, stationSeq) values ('%s', %s, %s, %s)"%(routeName, nowtime,remainSeat, locationNo, stationSeq))
         
         curs.commit()
         curs.close()
