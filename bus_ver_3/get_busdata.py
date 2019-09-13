@@ -1,7 +1,7 @@
 from get_remainseat import *
 import time
 
-#tq = getdata('08171')
+tq = getdata('08171')
 tq2 = getdata('40115')
 #try:
 while(True):
