@@ -13,6 +13,7 @@ class getdata:
         curs.execute('select stationId from stationId where station_num="%s"'%(self.stationNum))
         result = curs.fetchall()
         self.stationId = result[0][0]
+        print(self.stationId)
         curs.close()
 
     def remainSeat(self):
@@ -33,13 +34,14 @@ class getdata:
             stationSeq = int(staOrder) - int(locationNo)
             now = time.localtime()
             nowtime = "%04d-%02d-%02d %02d:%02d:%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec)
-            curs.execute("insert into bus_%s(date, remainSeat, locationNo, stationSeq) values ('%s', %s, %s, %s)"%(routeName, nowtime,remainSeat, locationNo, stationSeq))
+            curs.execute("insert into bus_%s(date, remainSeat, stationSeq) values ('%s', %s, %s)"%(routeName, nowtime,remainSeat, stationSeq))
         
         curs.commit()
         curs.close()
 
     def getrouteName(self, routeId):
         curs = dbcontrol('station_info')
+        print(self.stationNum, routeId)
         curs.execute('select routeName from station_%s where routeId=%s'%(self.stationNum, routeId))
         result = curs.fetchall()
         routeName = result[0][0]

@@ -2,6 +2,7 @@
 from db_control import *
 import urllib.request
 import xml.etree.ElementTree as et
+import sys
 
 class create_table:
     def __init__(self, stationNum):
@@ -21,9 +22,8 @@ class create_table:
         tree = et.fromstring(data)
 
         for data in tree.iter('busStationList'):
-            region = data.findtext("regionName") #지역명은 일단은 의정부로 헀고, 추가시 지역명도 db에 포함
-            if region == "의정부":
-                stationId = data.findtext("stationId")
+            #region = data.findtext("regionName") #지역명은 일단은 의정부로 헀고, 추가시 지역명도 db에 포함
+            stationId = data.findtext("stationId")
         print("[+] Success getstationId()")
         return stationId
     
@@ -37,16 +37,23 @@ class create_table:
         tree = et.fromstring(data)
         routeId_list=[]
         curs = dbcontrol('station_info')
-
-        curs.execute('create table station_%s(routeId INT, routeName char(4), staOrder INT)'%(self.stationNum))
+        #curs.execute('select EXISTS (select * from station_%s) as success'%(self.stationNum)) 안댐
+        curs.execute('show tables like "station_%s"'%(self.stationNum))
+        result = curs.fetchall()
+        if result:
+            print("이미 존재하는 정류장임")
+            sys.exit(1)
+        curs.execute('create table station_%s(routeId INT, routeName char(8), staOrder INT)'%(self.stationNum))
         curs.execute('insert into stationId(station_num, stationId) values("%s", %s)' %(self.stationNum, stationId))
         #ex) create station_08171, insert into ('3500', 34234234234)
         for data in tree.iter('busRouteList'):
             types = data.findtext("routeTypeName")
-            if types == "직행좌석형시내버스":
+            if types == "직행좌석형시내버스" or types == "좌석형시내버스":
                 routeId = data.findtext('routeId')
                 routeId_list.append(routeId)
-                curs.execute('insert into station_%s(routeId, routeName, staOrder) value (%s, "%s", %s)' %(self.stationNum, routeId, data.findtext('routeName'), data.findtext('staOrder')))
+                routeName = data.findtext('routeName').replace("-", "\\-")
+                print(routeName)
+                curs.execute('insert into station_%s(routeId, routeName, staOrder) value (%s, "%s", %s)' %(self.stationNum, routeId, routeName, data.findtext('staOrder')))
         curs.commit()
         curs.close()
         print("[+] Success getrouteId()")
@@ -66,15 +73,22 @@ class create_table:
             curs2.execute('select routeName from station_%s where routeId=%s' %(self.stationNum, routeId))
             routeName = curs2.fetchall()
             #print(routeName)
-            curs.execute('create table bus_%s(stationName varchar(40), routeId INT, stationId INT, x varchar(20), y varchar(20), stationSeq INT)'%(routeName[0][0]))
-
-            for data in tree.iter('busRouteStationList'):
-                stationId = data.findtext("stationId")
-                stationName = data.findtext("stationName")
-                station_x = data.findtext("x")
-                station_y = data.findtext("y")
-                stationSeq = data.findtext("stationSeq")
-                curs.execute("insert into bus_%s(stationName, routeID, stationId, x, y, stationSeq) values ('%s', %s, %s, '%s', '%s', %s)"%(routeName[0][0], stationName, routeId, stationId, station_x, station_y, stationSeq))
+            
+            curs.execute('show tables like "bus_%s"'%(routeName[0][0])) #테이블 존재 유무 확인
+            result = curs.fetchall()
+            print("name : %s" %(routeName))
+            if "-" in routeName:
+                routeName = routeName.replace("-", "\\-")
+            if not result:
+                curs.execute('create table `bus_%s`(stationName varchar(40), routeId INT, stationId INT, x varchar(20), y varchar(20), stationSeq INT)'%(routeName[0][0]))
+            
+                for data in tree.iter('busRouteStationList'):
+                    stationId = data.findtext("stationId")
+                    stationName = data.findtext("stationName")
+                    station_x = data.findtext("x")
+                    station_y = data.findtext("y")
+                    stationSeq = data.findtext("stationSeq")
+                    curs.execute("insert into `bus_%s`(stationName, routeID, stationId, x, y, stationSeq) values ('%s', %s, %s, '%s', '%s', %s)"%(routeName[0][0], stationName, routeId, stationId, station_x, station_y, stationSeq))
         curs.commit()
         curs.close()
         print("[+] Success createbusinfo")
@@ -87,7 +101,11 @@ class create_table:
         curs.execute('select routeName from station_%s'%(self.stationNum))
         name_list = curs.fetchall()
         for name in name_list:
-            curs2.execute('create table bus_%s(date datetime, remainSeat INT, locationNo INT, stationSeq INT)' %(name[0]))
+            curs2.execute('show tables like "bus_%s"' %(name[0]))
+            result = curs2.fetchall()
+            if not result:
+                curs2.execute('create table `bus_%s`(date datetime, remainSeat INT, stationSeq INT)' %(name[0]))
+            
         curs.commit()
         curs2.commit()
         curs.close()
