@@ -13,7 +13,7 @@ class getdata:
         curs.execute('select stationId from stationId where station_num="%s"'%(self.stationNum))
         result = curs.fetchall()
         self.stationId = result[0][0]
-        print(self.stationId)
+        #print(self.stationId)
         curs.close()
 
     def remainSeat(self):
@@ -41,7 +41,7 @@ class getdata:
 
     def getrouteName(self, routeId):
         curs = dbcontrol('station_info')
-        print(self.stationNum, routeId)
+        #print(self.stationNum, routeId)
         curs.execute('select routeName from station_%s where routeId=%s'%(self.stationNum, routeId))
         result = curs.fetchall()
         routeName = result[0][0]

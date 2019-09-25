@@ -3,10 +3,12 @@ import time
 
 tq = getdata('08171')
 tq2 = getdata('40115')
+tq3 = getdata('11105')
 #try:
 while(True):
-    #tq.remainSeat()
+    tq.remainSeat()
     tq2.remainSeat()
+    tq3 = getdata('11105')
     now = time.localtime()
     print("[+] Success getData Time: %04d-%02d-%02d %02d:%02d:%02d" % (now.tm_year, now.tm_mon, now.tm_mday, now.tm_hour, now.tm_min, now.tm_sec))
     time.sleep(300)
