@@ -41,6 +41,8 @@ class Data:
             avg = [0]*210
             for data in result:
                 avg[data[3]] += int(data[2])
+            avg/ #가악 stationSeq별 count 체크하고, 따로따로 나눠줘야함.. 신박한 방법있는지 생가악해야함.
+            for data 
             cur_month.execute("insert into `%s`(date, remainSeat, stationSeq) values ('%s', %0.1f, %s)" %(routeName, date1[:7], avg/len(result), ))
 
     def getDayAvg(self, month):
