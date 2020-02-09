@@ -6,9 +6,8 @@ class dbcontrol:
         self.curs =self.conn.cursor()
     def execute(self, str):
         self.curs.execute(str)
-    def commit(self):
-        self.conn.commit()
     def close(self):
+        self.conn.commit()
         self.conn.close()
     def fetchall(self):
         result = self.curs.fetchall()

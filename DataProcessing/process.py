@@ -1,28 +1,47 @@
 from db_control import *
 from datetime import datetime
+from list import *
 import calendar
 
 class Data:
     def __init__(self):
         self.db = dbcontrol('bus')
-        result = self.db.execute('select areaid, routeName, routeId from bus_info where areaid=29')
-
-        self.bus = '29_3500'
+        self.busList = self.db.execute('select * from bus_info')
         self.year = 2019
+        
 
-    def execute(self, date1, date2):
-        self.db.execute("select * from %s where date > '%s' and date < '%s'"%(self.bus, date1, date2))
+    def execute(self, bus, date1, date2):
+        self.db.execute("select * from %s where date > '%s' and date < '%s'"%(bus, date1, date2))
         return self.db.fetchall()
 
+    def createBusDB(self):
+        cur_time = dbcontrol('TimeAvg')
+        cur_day = dbcontrol('DayAvg')
+        cur_month = dbcontrol('MonthAvg')
+
+        for data in self.busList:
+            routeName = data[0] + "_" + data[1]
+            cur_time.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
+            cur_day.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
+            cur_month.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routename))
+
+        cur_time.close()
+        cur_day.close()
+        cur_month.close()
+
     def getMonthAvg(self, month):
+        cur_month = dbcontrol('MonthAvg')
         date1 = '%d-%02d-%02d %02d:%02d:%02d'%(self.year, month, 1, 0, 0, 0)
         date2 = '%d-%02d-%02d %02d:%02d:%02d'%(self.year, month, calendar.monthrange(self.year, month)[1], 23, 59, 59)
-        result = self.execute(date1, date2)
         
-        avg = 0
-        for i in result:
-            avg += int(i[2])
-        return "%0.1f" %(avg/len(result))
+        for data in self.busList:
+            routeName = data[0] + '_' + data[0]
+            result = self.execute(bus ,date1, date2)
+
+            avg = [0]*210
+            for data in result:
+                avg[data[3]] += int(data[2])
+            cur_month.execute("insert into `%s`(date, remainSeat, stationSeq) values ('%s', %0.1f, %s)" %(routeName, date1[:7], avg/len(result), ))
 
     def getDayAvg(self, month):
         avg_dict = {}
@@ -41,6 +60,7 @@ class Data:
                 pass
                 #print('%s : No Data' %(date1[:10]))
         return avg_dict
+
     #자기소개에 추천시스템 추상적 요소 추가
     def getTimeAvg(self, month, day):
         date1 = '%d-%02d-%02d %02d:%02d:%02d'%(self.year, month, day, 0, 0, 0)
@@ -62,11 +82,15 @@ class Data:
 
 if __name__ == "__main__":
     a = Data()
+    a.getBusList()
+    a.createBusDB()
+    """
     print(a.getMonthAvg(12))
     result = a.getDayAvg(11)
     print(result.keys())
     result = a.getTimeAvg(12,7)
     print(result.keys())
+    """
     #월 입력해서 달 입력. calendar.monthrange(year, month)[1]
 
 # 버스별 추가 line 7
