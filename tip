@@ -1,0 +1,2 @@
+하나의 db내의 내용만 지우기
+mysql -Nse 'show tables' DATABASE_NAME | while read table; do mysql -e "truncate table $table" DATABASE_NAME; done
