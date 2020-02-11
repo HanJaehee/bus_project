@@ -25,9 +25,9 @@ class Data:
 
         for data in self.busList:
             routeName = data[0] + "_" + data[1]
-            cur_time.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
-            cur_day.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
-            cur_month.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
+            #cur_time.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
+            #cur_day.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
+            cur_month.execute("create table `%s`(date date, remainSeat FLOAT, stationSeq INT) " %(routeName)) #시간 안넣으려면 date 쓰자
 
         cur_time.close()
         cur_day.close()
@@ -63,7 +63,8 @@ class Data:
             for remainSeat in avg:
                 if avg == 0:
                     continue
-                cur_month.execute("insert into `%s`(date, remainSeat, stationSeq) values ('%s', %0.1f, %d)" %(routeName, date1.strftime("%Y-%m"), remainSeat, i))
+                #print(date1.strftime("%Y-%m-%d"))
+                cur_month.execute("insert into `%s`(date, remainSeat, stationSeq) values ('%s', %0.1f, %d)" %(routeName, date1.strftime("%Y-%m-%d"), remainSeat, i))
                 i+=1
         
         cur.close()
@@ -109,7 +110,7 @@ class Data:
 if __name__ == "__main__":
     a = Data()
     #a.getBusList()
-    #a.createBusDB()
+    a.createBusDB()
     #a.getRow()
     a.getMonthAvg(12)
     """
@@ -123,4 +124,4 @@ if __name__ == "__main__":
 
 # 버스별 추가 line 7
 # 시간별 추가 line 12
-# 시간이 안들어감 , 디비 대용량 삭제방법 강구
+# 시간이 안들어감 , 디비 대용량 삭제방법 강구 해결 : 2020-02-11
