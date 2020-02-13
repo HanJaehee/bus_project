@@ -38,9 +38,9 @@ class Data:
 
         for data in self.busList:
             routeName = data[0] + "_" + data[1]
-            #cur_time.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
-            cur_day.execute("create table `%s`(date date, remainSeat FLOAT, stationSeq INT) " %(routeName))
-            cur_month.execute("create table `%s`(date date, remainSeat FLOAT, stationSeq INT) " %(routeName)) #시간 안넣으려면 date 쓰자
+            cur_time.execute("create table `%s`(date datetime, remainSeat FLOAT, stationSeq INT) " %(routeName))
+            #cur_day.execute("create table `%s`(date date, remainSeat FLOAT, stationSeq INT) " %(routeName))
+            #cur_month.execute("create table `%s`(date date, remainSeat FLOAT, stationSeq INT) " %(routeName)) #시간 안넣으려면 date 쓰자
 
         cur_time.close()
         cur_day.close()
@@ -129,31 +129,59 @@ class Data:
         for data in self.busList:
             routeName = data[0] + '_' + data[1]
             stationSeq_len = len(cur.execute('select * from `%s`' %(routeName)))
-            for day in range(1, stationSeq_len):
-                date1 = datetime(self.year, month, day, 0, 0, 0)
-                date2 = datetime(self.year, month, day, 23, 59, 59)
-                result = self.execute(routeName, date1, date2)
+            
+            date1 = datetime(self.year, month, day, 0, 0, 0)
+            date2 = datetime(self.year, month, day, 23, 59, 59)
+            result = self.execute(routeName, date1, date2)
 
-                avg_list = [0]*(stationSeq_len+1)
-                avg_count = avg_list[:]
+            avg_list = []
+            avg_count = []
+            tmp = list(0 for x in range(24))
+            for i in range(stationSeq_len+1):
+                avg_list.append(tmp[:])
+            for i in range(stationSeq_len+1): # avg_count = avg_list[:] print same result
+                avg_count.append(tmp[:])
 
-                for i in result:
-                    time = int(i[0].strftime("%H"))
-                    avg_list[index] += int(i[2])
-                    avg_count[index] += 1
-                for i in range(0, 24):
-                    if avg_count[i] == 0:
+            for data in result:
+                time = int(data[0].strftime("%H"))
+                stationSeq = int(data[3])
+
+                try:
+                    avg_list[stationSeq][time] += int(data[2]) # remainSeat
+                    avg_count[stationSeq][time] += 1
+                except IndexError:
+                    print("%s : %d" %(routeName, stationSeq_len))
+            
+            for stationSeq in range(1, stationSeq_len+1):
+                for time in range(0,24):
+                    if avg_count[stationSeq][time] == 0:
                         continue
-                    avg_dict['%d-%02d-%02d %02d'%(self.year, month, day, i)] = avg_list[i]/avg_count[i]
-                return avg_dict
+                    remainSeat = avg_list[stationSeq][time]/avg_count[stationSeq][time]
+                    time = datetime(self.year, month, day, time)
+                    cur_time.execute("insert into `%s`(date, remainSeat, stationSeq) values('%s', %0.1f, %d)"%(routeName, time.strftime('%Y-%m-%d %H:%M'), remainSeat, stationSeq))
+
+        cur_time.close()
+        cur.close()
+
+        print("Success getTimeAvg [+]")
+        #print(avg_list)
+
+        """
+        for i in range(0, 24):
+            if avg_count[i] == 0:
+                continue
+            avg_dict['%d-%02d-%02d %02d'%(self.year, month, day, i)] = avg_list[i]/avg_count[i]
+        return avg_dict
+        """
 
 if __name__ == "__main__":
     a = Data()
     #a.getBusList()
-    #a.createBusDB()
-    a.getDayAvg(1)
+    a.createBusDB()
+    #a.getDayAvg(1)
     #a.getRow()
     #a.getMonthAvg(1)
+    a.getTimeAvg(1, 4)
 
 
 
