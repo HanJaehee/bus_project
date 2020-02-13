@@ -72,7 +72,7 @@ class Data:
                 if avg_count[i] == 0:
                     continue
                 avg[i] /= avg_count[i]
-            i=0
+            i=1
             for remainSeat in avg:
                 if avg == 0:
                     continue
@@ -109,7 +109,7 @@ class Data:
 
                     #print('%s : No Data' %(date1[:10]))
                 print(avg_list)
-                i = 0 
+                i = 1
                 for data in avg_list:
                     if avg_count[i] == 0:
                         i+=1
@@ -123,22 +123,29 @@ class Data:
 
     #자기소개에 추천시스템 추상적 요소 추가
     def getTimeAvg(self, month, day):
-        date1 = '%d-%02d-%02d %02d:%02d:%02d'%(self.year, month, day, 0, 0, 0)
-        date2 = '%d-%02d-%02d %02d:%02d:%02d'%(self.year, month, day, 23, 59, 59)
-        result = self.execute(date1, date2)
+        cur_time = dbcontrol('TimeAvg')
+        cur = dbcontrol('busStationInfo')
 
-        avg_list = [0]*24
-        avg_count = [0]*24
-        avg_dict = {}
-        for i in result:
-            index = int(i[0].strftime("%H"))
-            avg_list[index] += int(i[2])
-            avg_count[index] += 1
-        for i in range(0, 24):
-            if avg_count[i] == 0:
-                continue
-            avg_dict['%d-%02d-%02d %02d'%(self.year, month, day, i)] = avg_list[i]/avg_count[i]
-        return avg_dict
+        for data in self.busList:
+            routeName = data[0] + '_' + data[1]
+            stationSeq_len = len(cur.execute('select * from `%s`' %(routeName)))
+            for day in range(1, stationSeq_len):
+                date1 = datetime(self.year, month, day, 0, 0, 0)
+                date2 = datetime(self.year, month, day, 23, 59, 59)
+                result = self.execute(routeName, date1, date2)
+
+                avg_list = [0]*(stationSeq_len+1)
+                avg_count = avg_list[:]
+
+                for i in result:
+                    time = int(i[0].strftime("%H"))
+                    avg_list[index] += int(i[2])
+                    avg_count[index] += 1
+                for i in range(0, 24):
+                    if avg_count[i] == 0:
+                        continue
+                    avg_dict['%d-%02d-%02d %02d'%(self.year, month, day, i)] = avg_list[i]/avg_count[i]
+                return avg_dict
 
 if __name__ == "__main__":
     a = Data()
