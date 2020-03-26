@@ -21,8 +21,8 @@ class bus:
 
     def remainSeat(self):#잔여좌석 가져온닷
         db = dbcontrol('bus')
-        db.execute('select areaid, routeName, routeId from bus_info where areaid=29 or areaid=18')
-        #일단은 포천만
+        db.execute('select areaid, routeName, routeId from bus_info where areaid=29 or areaid=18 or areaid=25')
+        #일단은 포천,의정부, G1300
         bus_list = db.fetchall()
 
         for bus in bus_list:

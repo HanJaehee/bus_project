@@ -25,24 +25,27 @@ class create_table: # ex . ('31', '8156', '233000258', '서울,의왕,화성')
             
             #if "-" in routeName:
             #    routeName = routeName.replace("-", "\-")
-            curs2.execute('create table `%s_%s`(stationName varchar(40), mobileNo INT, stationId INT, stationSeq INT, regionName varchar(10), districtCd INT, centerYn varchar(5), turnYn varchar(5),x varchar(20), y varchar(20))'%(info[0], routeName))
-        
-            for data in tree.iter('busRouteStationList'):
-                stationId = data.findtext("stationId")
-                mobileNo = data.findtext("mobileNo")
-                regionName = data.findtext("regionName")
-                turnYn = data.findtext("turnYn")
-                centerYn = data.findtext("centerYn")
-                districtCd = data.findtext("districtCd")
-                stationName = data.findtext("stationName")
-                station_x = data.findtext("x")
-                station_y = data.findtext("y")
-                stationSeq = data.findtext("stationSeq")
+            try:
+                curs2.execute('create table `%s_%s`(stationName varchar(40), mobileNo INT, stationId INT, stationSeq INT, regionName varchar(10), districtCd INT, centerYn varchar(5), turnYn varchar(5),x varchar(20), y varchar(20))'%(info[0], routeName))
+            
+                for data in tree.iter('busRouteStationList'):
+                    stationId = data.findtext("stationId")
+                    mobileNo = data.findtext("mobileNo")
+                    regionName = data.findtext("regionName")
+                    turnYn = data.findtext("turnYn")
+                    centerYn = data.findtext("centerYn")
+                    districtCd = data.findtext("districtCd")
+                    stationName = data.findtext("stationName")
+                    station_x = data.findtext("x")
+                    station_y = data.findtext("y")
+                    stationSeq = data.findtext("stationSeq")
 
-                if mobileNo == None:
-                    curs2.execute("insert into `%s_%s`(stationName, stationId, stationSeq, regionName, districtCd , centerYn, turnYn, x, y) values ('%s', %s, %s, '%s', %s, '%s', '%s', '%s', '%s')"%(info[0], routeName, stationName, stationId, stationSeq ,regionName, districtCd , centerYn, turnYn, station_x, station_y))
-                else:
-                    curs2.execute("insert into `%s_%s`(stationName, mobileNo, stationId, stationSeq, regionName, districtCd , centerYn, turnYn, x, y) values ('%s', %s, %s, %s, '%s', %s, '%s', '%s', '%s', '%s')"%(info[0], routeName, stationName, mobileNo, stationId, stationSeq ,regionName, districtCd , centerYn, turnYn, station_x, station_y))
+                    if mobileNo == None:
+                        curs2.execute("insert into `%s_%s`(stationName, stationId, stationSeq, regionName, districtCd , centerYn, turnYn, x, y) values ('%s', %s, %s, '%s', %s, '%s', '%s', '%s', '%s')"%(info[0], routeName, stationName, stationId, stationSeq ,regionName, districtCd , centerYn, turnYn, station_x, station_y))
+                    else:
+                        curs2.execute("insert into `%s_%s`(stationName, mobileNo, stationId, stationSeq, regionName, districtCd , centerYn, turnYn, x, y) values ('%s', %s, %s, %s, '%s', %s, '%s', '%s', '%s', '%s')"%(info[0], routeName, stationName, mobileNo, stationId, stationSeq ,regionName, districtCd , centerYn, turnYn, station_x, station_y))
+            except Exception as e:
+                print(e)
             print("name : %s" %(routeName))
         curs2.close()
         curs.close()
